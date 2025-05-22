@@ -1,3 +1,15 @@
+<?php
+session_start(); // Инициализация сессии
+
+// Генерация CSRF токена, если он еще не был сгенерирован
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  // Генерация случайного токена
+}
+?>
+
+
+
+
 <?php 
 include('partals/header.php'); 
 ?>
@@ -5,6 +17,7 @@ include('partals/header.php');
     <h5><strong>BILLING INFORMATION</strong></h5>
 
     <form method="POST" action="checkout_form.php"> 
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
     <div class="content_half float_l checkout">
         Full Name (must be same as on your credit card):  

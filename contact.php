@@ -1,3 +1,12 @@
+<?php
+session_start(); // Инициализация сессии
+
+// Генерация CSRF токена, если он еще не был сгенерирован
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  // Генерация случайного токена
+}
+?>
+
 <?php 
 include('partals/header.php'); 
 ?>
@@ -6,6 +15,7 @@ include('partals/header.php');
                 <p>Etiam eget leo nisl. Morbi magna enim, lobortis vitae condimentum eu, ultrices a lacus.</p>
                 <div id="contact_form">
                    <form method="post" name="contact" action="contact_form.php">
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         
                         <label for="author">Name:</label> <input type="text" id="author" name="author" class="required input_field" />
                         <div class="cleaner h10"></div>
