@@ -1,71 +1,81 @@
 <?php
-session_start(); // Инициализация сессии
+session_start();
+require_once 'classes/Cart.php';
 
-// Подключаемся к базе данных
-$servername = "localhost";
-$username = "root";
-$password = "";  // Используем пустой пароль для XAMPP
-$dbname = "data";  // Укажите имя вашей базы данных
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Проверка подключения
-if ($conn->connect_error) {
-    die("Ошибка подключения: " . $conn->connect_error);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: checkout.php");
+    exit();
 }
 
-// Проверка CSRF токена
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die("Ошибка валидации CSRF токена.");
-    }
-
-    // Получаем данные из формы
-    $full_name = htmlspecialchars($_POST['full_name']);
-    $address = htmlspecialchars($_POST['address']);
-    $city = htmlspecialchars($_POST['city']);
-    $country = htmlspecialchars($_POST['country']);
-    $email = htmlspecialchars($_POST['email']);
-    $phone = htmlspecialchars($_POST['phone']);
-
-    // Проверяем, что все обязательные поля заполнены
-    if (!empty($full_name) && !empty($address) && !empty($city) && !empty($country) && !empty($email) && !empty($phone)) {
-        // Дополнительная валидация email
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            // Подготовленное выражение для вставки данных в базу
-            $stmt = $conn->prepare("INSERT INTO orders (full_name, address, city, country, email, phone) VALUES (?, ?, ?, ?, ?, ?)");
-
-            if ($stmt === false) {
-                die("Ошибка подготовки запроса: " . $conn->error);  // Ошибка подготовки запроса
-            }
-
-            // Привязываем параметры
-            $stmt->bind_param("ssssss", $full_name, $address, $city, $country, $email, $phone);
-
-            // Выполняем запрос
-            if ($stmt->execute()) {
-                echo "Thank you for your order!<br>";
-                echo "Full Name: $full_name<br>";
-                echo "Address: $address<br>";
-                echo "City: $city<br>";
-                echo "Country: $country<br>";
-                echo "Email: $email<br>";
-                echo "Phone: $phone<br>";
-            } else {
-                echo "Ошибка при отправке данных: " . $stmt->error;  // Если ошибка выполнения запроса
-                file_put_contents("error_log.txt", "Ошибка при выполнении запроса: " . $stmt->error . "\n", FILE_APPEND);
-            }
-
-            // Закрываем подготовленное выражение
-            $stmt->close();
-        } else {
-            echo "Please provide a valid email address.";
-        }
-    } else {
-        echo "Please fill in all fields.";
-    }
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    die("Security error: invalid CSRF token.");
 }
 
-// Закрываем соединение с базой данных
-$conn->close();
-?>
+$cart = new Cart();
+
+$items = $cart->getItems();
+if (empty($items)) {
+    die("Shopping cart is empty.");
+}
+
+
+$products = [
+    1 => ['name' => 'Ut eu feugiat', 'price' => 100],
+    2 => ['name' => 'Curabitur et turpis', 'price' => 80],
+    3 => ['name' => 'Mauris consectetur', 'price' => 60],
+    4 => ['name' => 'Proin volutpat', 'price' => 220],
+    5 => ['name' => 'Aenean tempus', 'price' => 180],
+    6 => ['name' => 'Nulla luctus urna', 'price' => 160],
+];
+
+
+$total = 0;
+foreach ($items as $productId => $qty) {
+    if (!isset($products[$productId])) {
+        die("Error: product with ID $productId was not found.");
+    }
+    $total += $products[$productId]['price'] * $qty;
+}
+
+$full_name = trim($_POST['full_name'] ?? '');
+$address = trim($_POST['address'] ?? '');
+$city = trim($_POST['city'] ?? '');
+$country = trim($_POST['country'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$phone = trim($_POST['phone'] ?? '');
+
+if (!$full_name || !$address || !$city || !$country || !$email || !$phone) {
+    die("Please fill in all fields.");
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    die("Incorrect email format.");
+}
+
+
+$host = 'localhost';
+$dbname = 'data';
+$user = 'root';
+$pass = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
+} catch (PDOException $e) {
+    die("Error connecting to the base: " . $e->getMessage());
+}
+
+
+$stmt = $pdo->prepare("INSERT INTO orders (full_name, address, city, country, email, phone, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?)");
+$stmt->execute([$full_name, $address, $city, $country, $email, $phone, $total]);
+
+$orderId = $pdo->lastInsertId();
+
+
+
+
+$cart->clear();
+
+header("Location: thankyou.php?order_id=$orderId");
+exit();

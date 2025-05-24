@@ -1,9 +1,9 @@
 <?php
-session_start(); // Инициализация сессии
+session_start(); 
 
-// Генерация CSRF токена, если он еще не был сгенерирован
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  // Генерация случайного токена
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));  
 }
 ?>
 

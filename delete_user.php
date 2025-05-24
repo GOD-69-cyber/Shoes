@@ -11,7 +11,7 @@ if (!$auth->isLoggedIn()) {
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     $db = new Database();
-    $db->query("DELETE FROM users WHERE id = $id");
+    $db->query("DELETE FROM orders WHERE id = $id");
     
     header("Location: admin_panel.php");
     exit;

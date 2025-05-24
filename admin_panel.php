@@ -8,9 +8,9 @@ if (!$auth->isLoggedIn()) {
     exit;
 }
 
-// Получаем список пользователей из базы данных
+
 $db = new Database();
-$users = $db->query("SELECT * FROM users");
+$users = $db->query("SELECT * FROM orders");
 ?>
 
 <!DOCTYPE html>
@@ -38,14 +38,25 @@ $users = $db->query("SELECT * FROM users");
                         <tr>
                             <th>ID</th>
                             <th>Username</th>
-                            <th>Email</th>
-                            <th>Actions</th>
+                            <th>address</th>
+                            <th>city</th>
+                            <th>country</th>
+                            <th>email</th>
+                            <th>phone</th>
+                            <th>total_amount</th>
+                            <th>created_at</th>
                         </tr>
                         <?php while($user = $users->fetch_assoc()): ?>
                         <tr>
                             <td><?= $user['id'] ?></td>
-                            <td><?= htmlspecialchars($user['username']) ?></td>
+                            <td><?= htmlspecialchars($user['full_name']) ?></td>
+                            <td><?= htmlspecialchars($user['address']) ?></td>
+                            <td><?= htmlspecialchars($user['city']) ?></td>
+                            <td><?= htmlspecialchars($user['country']) ?></td>
                             <td><?= htmlspecialchars($user['email']) ?></td>
+                            <td><?= htmlspecialchars($user['phone']) ?></td>
+                            <td><?= htmlspecialchars($user['total_amount']) ?></td>
+                            <td><?= htmlspecialchars($user['created_at']) ?></td>
                             <td>
                                 <a href="delete_user.php?id=<?= $user['id'] ?>" 
                                    onclick="return confirm('Are you sure you want to delete this user?')">

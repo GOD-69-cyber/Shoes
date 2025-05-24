@@ -30,10 +30,9 @@ ddsmoothmenu.init({
         <div id="site_title"><h1><a href="index.php">Online Shoes Store</a></h1></div>
         <div id="header_right">
             <p>
-            <a href="#">My Account</a> | <a href="#">My Wishlist</a> | 
-            <a href="#">My Cart</a> | <a href="checkout.php">Checkout</a> | 
-            <a href="login.php">Log In</a></p>
-            <p>Shopping Cart: <strong>3 items</strong> (<a href="shoppingcart.php">Show Cart</a>)</p>
+             <a href="checkout.php">Checkout</a> | 
+            <a href="login.php">admin</a></p>
+            <p>Shopping Cart: <strong>items</strong> (<a href="shoppingcart.php">Show Cart</a>)</p>
         </div>
         <div class="cleaner"></div>
     </div>

@@ -1,9 +1,9 @@
 <?php
-session_start(); // Начинаем сессию
-session_unset(); // Очищаем все данные сессии
-session_destroy(); // Уничтожаем сессию
+session_start(); 
+session_unset(); 
+session_destroy(); 
 
-// Перенаправляем на главную страницу
+
 header("Location: index.php");
-exit(); // Завершаем выполнение скрипта
+exit(); 
 ?>

@@ -17,7 +17,7 @@ class Auth {
         if ($result && $result->num_rows == 1) {
             $admin = $result->fetch_assoc();
             
-            // Проверяем пароль (используем password_verify для хешированных паролей)
+          
             if (password_verify($password, $admin['password'])) {
                 session_start();
                 $_SESSION['admin_logged_in'] = true;
